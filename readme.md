@@ -28,7 +28,7 @@
    **8)** Start your FiveM server.
    
    
-### EXTRA:
+### CONVARS:
 
 You can change the messages and port using convar in your FiveM server config file:
    
