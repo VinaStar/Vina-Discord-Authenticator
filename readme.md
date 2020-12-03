@@ -39,5 +39,5 @@ You can change the messages and port using convar in your FiveM server config fi
 **Set the message when someone have a Discord binded to the fivem launcher but is not member of your Discord server**
 
 - *set discord_auth_port 8085*  
-**Set the port to connect to the websocket server (same as in the convar if you change it)**
+**Set the port to connect to the websocket server (convar and node config.json must be the same)**
    
