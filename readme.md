@@ -1,5 +1,13 @@
 # FiveM Discord Authenticator v1.0
    
+### Features
+- Localhost WebSocket Communication with FiveM server.
+- Discord Bot client connection
+- Verify user is member of the Discord server.
+- Post authentication (succeed & failed) notification in a Discord channel.
+- Standalone Resource
+   
+---
    
 ### INSTRUCTIONS:
    
