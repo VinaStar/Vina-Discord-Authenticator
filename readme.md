@@ -3,19 +3,19 @@
    
 ### INSTRUCTIONS:
    
-   **1)** Place the "fivemdiscordauthenticator" directory inside your server Resources directory.
+   **1)** Place "fivemdiscordauthenticator" directory inside your server Resources directory.
    
    **2)** Add "ensure fivemdiscordauthenticator" to your server config.
    
-   **3)** Open/Edit "fivem_discord_authenticator_node/config.json"
+   **3)** Open/Edit "Node/config.json"
    
-   **4)** Set "bot_token" with your discord bot token.
+   **4)** Replace "bot_token" with your discord bot token.
    
-   **5)** Optionally, set "auth_channel" with a channel ID from your discord server to recieve live message when authentication occur.
+   **5)** Optionally, replace "auth_channel" with a channel ID from your discord server to recieve live message when authentication occur.
    
-   **6)** Run the command "npm install" from within the "fivem_discord_authenticator_node" directory.
+   **6)** Run the command "npm install" inside "Node" directory.
    
-   **7)** Run the node using "node fivem_discord_authenticator.js" require NodeJS to be installed.
+   **7)** Run the node using "node fivem_discord_authenticator.js", require NodeJS to be installed.
    
    **8)** Start your FiveM server.
    
