@@ -1,10 +1,4 @@
-        _             __ _             
- /\   /(_)_ __   __ _/ _\ |_ __ _ _ __ 
- \ \ / / | '_ \ / _` \ \| __/ _` | '__|
-  \ V /| | | | | (_| |\ \ || (_| | |   
-   \_/ |_|_| |_|\__,_\__/\__\__,_|_|   
-   
-   FiveM Discord Authenticator v1.0
+# FiveM Discord Authenticator v1.0
    
    
 ### INSTRUCTIONS:
