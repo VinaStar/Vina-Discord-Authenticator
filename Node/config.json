@@ -1,0 +1,6 @@
+{
+	"port": 8085,
+	"reconnectDelay": 5000,
+	"auth_channel": "AUTH_CHANNEL_ID",
+    "bot_token": "BOT_PRIVATE_TOKEN"
+}

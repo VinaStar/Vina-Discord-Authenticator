@@ -1,0 +1,16 @@
+{
+  "name": "fivem-discord-authenticator",
+  "version": "1.0.0",
+  "description": "NodeJS fivem discord authenticator bot",
+  "main": "fivem_discord_authenticator.js",
+  "scripts": {
+    "start": "node fivem_discord_authenticator.js"
+  },
+  "keywords": [],
+  "author": "VinaStar",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "ws": "^7.4.0"
+  }
+}
