@@ -8,6 +8,11 @@
 - Standalone Resource
    
 ---
+  
+![Node Console Output](https://i.imgur.com/SCHBhER.png)
+![Discord Live Notification](https://i.imgur.com/7mvVDSS.png)
+  
+---
    
 ### INSTRUCTIONS:
    
