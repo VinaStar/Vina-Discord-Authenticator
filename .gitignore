@@ -1,3 +1,5 @@
 *.zip
 *.bat
 _releases
+packages
+.vs

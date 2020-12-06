@@ -5,7 +5,7 @@ const config = require('./config.json');
 
 const line = '--------------------------------------------';
 console.log(line);
-console.log(`FiveM Discord Authenticator is starting using port ${config.port}`);
+console.log(`Vina Discord Authenticator is starting using port ${config.port}`);
 
 client.on('ready', () => {
     console.log(`Discord: Logged in as ${client.user.tag}!`);

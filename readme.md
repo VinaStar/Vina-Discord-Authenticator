@@ -1,4 +1,4 @@
-# Vina Discord Authenticator v1.0
+# Vina Discord Authenticator
    
 ### FEATURES
 - Localhost WebSocket Communication with FiveM server.
@@ -16,9 +16,9 @@
    
 ### INSTRUCTIONS:
    
-   **1)** Place "fivemdiscordauthenticator" directory inside your server Resources directory.
+   **1)** Place "vinadiscordauthenticator" directory inside your server Resources directory.
    
-   **2)** Add "ensure fivemdiscordauthenticator" to your server config.
+   **2)** Add "ensure vinadiscordauthenticator" to your server config.
    
    **3)** Open/Edit "Node/config.json"
    
@@ -38,12 +38,12 @@
 
 You can change the messages and port using convar in your FiveM server config file:
    
-- *set discord_auth_drop_notbinded_message "You must bind your Discord account in FiveM settings to join this server."*  
+- *set vina_discord_auth_drop_notbinded_message "You must bind your Discord account in FiveM settings to join this server."*  
 **Set the message when someone doesn't have a Discord binded to the fivem launcher**
 
-- *set discord_auth_drop_notmember_message "You must be a member of our Discord channel to join this server."*  
+- *set vina_discord_auth_drop_notmember_message "You must be a member of our Discord channel to join this server."*  
 **Set the message when someone have a Discord binded to the fivem launcher but is not member of your Discord server**
 
-- *set discord_auth_port 8085*  
+- *set vina_discord_auth_port 8085*  
 **Set the port to connect to the websocket server (convar and node config.json must be the same)**
    

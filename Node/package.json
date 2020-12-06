@@ -1,8 +1,8 @@
 {
-  "name": "fivem-discord-authenticator",
+  "name": "vina-discord-authenticator",
   "version": "1.0.0",
-  "description": "NodeJS fivem discord authenticator bot",
-  "main": "fivem_discord_authenticator.js",
+  "description": "Vina Discord Authenticator Node",
+  "main": "vina_discord_authenticator.js",
   "scripts": {
     "start": "node fivem_discord_authenticator.js"
   },
