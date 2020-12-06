@@ -1,4 +1,4 @@
-# FiveM Discord Authenticator v1.0
+# Vina Discord Authenticator v1.0
    
 ### FEATURES
 - Localhost WebSocket Communication with FiveM server.
