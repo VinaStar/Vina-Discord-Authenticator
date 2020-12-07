@@ -4,7 +4,7 @@
   "description": "Vina Discord Authenticator Node",
   "main": "vina_discord_authenticator.js",
   "scripts": {
-    "start": "node fivem_discord_authenticator.js"
+    "start": "node vina_discord_authenticator.js"
   },
   "keywords": [],
   "author": "VinaStar",
