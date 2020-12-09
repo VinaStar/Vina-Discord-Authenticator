@@ -3,7 +3,7 @@ D:\FiveM\VinaSkyOnline\workspace\FiveM_DiscordAuthenticator\VinaDiscordAuthentic
 D:\FiveM\VinaSkyOnline\workspace\FiveM_DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\VinaDiscordAuthenticator.csproj.CoreCompileInputs.cache
 D:\FiveM\VinaSkyOnline\workspace\FiveM_DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\VinaDiscordAuthenticator.csproj.CopyComplete
 D:\FiveM\VinaSkyOnline\workspace\FiveM_DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\Vina_DiscordAuthenticator.net.dll
-D:\FiveM\VinaSkyOnline\workspace\Vina-DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\VinaDiscordAuthenticator.csprojAssemblyReference.cache
 D:\FiveM\VinaSkyOnline\workspace\Vina-DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\VinaDiscordAuthenticator.csproj.CoreCompileInputs.cache
 D:\FiveM\VinaSkyOnline\workspace\Vina-DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\VinaDiscordAuthenticator.csproj.CopyComplete
 D:\FiveM\VinaSkyOnline\workspace\Vina-DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\Vina_DiscordAuthenticator.net.dll
+D:\FiveM\VinaSkyOnline\workspace\Vina-DiscordAuthenticator\VinaDiscordAuthenticator\obj\Debug\VinaDiscordAuthenticator.csprojAssemblyReference.cache

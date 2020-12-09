@@ -8,16 +8,28 @@ namespace VinaDiscordAuthenticator
 {
     public class Server : BaseScript
     {
+        public static Server Instance;
         private string ResourceName;
 
         public Server()
         {
             ResourceName = GetCurrentResourceName();
 
-            EventHandlers["onResourceStop"] += new Action<string>(OnResourceStop);
-            EventHandlers["playerConnecting"] += new Action<Player, string, dynamic, dynamic>(OnPlayerConnecting);
+            if (Instance == null)
+            {
+                Instance = this;
 
-            SocketManager.Start(GetConvarInt("vina_discord_auth_port", 8085));
+                EventHandlers["onResourceStop"] += new Action<string>(OnResourceStop);
+                EventHandlers["playerConnecting"] += new Action<Player, string, dynamic, dynamic>(OnPlayerConnecting);
+                EventHandlers["playerDropped"] += new Action<Player, string>(OnPlayerDropped);
+
+                SocketManager.Start(GetConvarInt("vina_discord_auth_port", 8085));
+            }
+        }
+
+        public PlayerList GetPlayers()
+        {
+            return Players;
         }
 
         private void OnResourceStop(string resourceName)
@@ -34,28 +46,24 @@ namespace VinaDiscordAuthenticator
             await Delay(0);
 
             string discordId = player.Identifiers["discord"];
-            bool authenticated = discordId != "" && await DiscordAuthSocket.Authenticate(discordId);
-            if (authenticated)
+            AuthResult result = await DiscordAuthSocket.Authenticate(deferrals, discordId);
+            if (result.Valid)
             {
-                Debug.WriteLine($"VinaDiscordAuthenticator: Player {playerName} authenticated with Discord successfully!");
+                Debug.WriteLine($"VinaDiscordAuthenticator: Player {playerName}({discordId}) authenticated successfully!");
+                deferrals.done();
             }
             else
             {
-                if (discordId == "")
-                {
-                    Debug.WriteLine($"VinaDiscordAuthenticator: Player {playerName} did not authenticate with Discord!");
-                    deferrals.done(GetConvar("vina_discord_auth_drop_notbinded_message", "You must bind your Discord account in FiveM settings to join this server."));
-                }
-                else
-                {
-                    Debug.WriteLine($"VinaDiscordAuthenticator: Player {playerName} did not authenticate with Discord!");
-                    deferrals.done(GetConvar("vina_discord_auth_drop_notmember_message", "You must be a member of our Discord channel to join this server."));
-                }
+                Debug.WriteLine($"VinaDiscordAuthenticator: Player {playerName}({discordId}) authentication failed! -> Reason: {result.Reason}");
+                deferrals.done(result.Reason);
 
                 return;
             }
+        }
 
-            deferrals.done();
+        private void OnPlayerDropped([FromSource] Player player, string reason)
+        {
+            DiscordAuthSocket.PlayerDropped(player, reason);
         }
     }
 }
