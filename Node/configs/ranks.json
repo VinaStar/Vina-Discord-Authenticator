@@ -1,0 +1,30 @@
+[
+	{
+		"name": "Administrator",
+		"roleId": "ROLE_ID",
+		"admin": true
+	},
+	{
+		"name": "Moderator",
+		"roleId": "ROLE_ID",
+		"admin": true
+	},
+	{
+		"name": "VIP",
+		"roleId": "ROLE_ID",
+		"important": true
+	},
+	{
+		"name": "Donator",
+		"roleId": "ROLE_ID",
+		"important": true
+	},
+	{
+		"name": "Member",
+		"roleId": "ROLE_ID"
+	},
+	{
+		"name": "Default Discord Role",
+		"roleId": "ROLE_ID"
+	}
+]

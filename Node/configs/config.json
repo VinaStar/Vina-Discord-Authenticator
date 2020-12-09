@@ -1,0 +1,10 @@
+{
+	"debug": false,
+	"commandline": false,
+	"locale": "en",
+	"port": 8085,
+	"reconnectDelay": 3000,
+	"server_id": "SERVER_ID",
+	"channel_id": "CHANNEL_ID",
+	"bot_token": "BOT_PRIVATE_TOKEN"
+}

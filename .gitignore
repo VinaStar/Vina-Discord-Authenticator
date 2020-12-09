@@ -3,3 +3,9 @@
 _releases
 packages
 .vs
+dev_config.json
+dev_ranks.json
+start_dev.bat
+package-lock.json
+bin
+obj

@@ -1,0 +1,72 @@
+{
+	"intro_starting": "Vina Discord Auth2 is starting using port {0}",
+	
+	"general_online_players": "Online Players",
+	"general_queued_players": "Queued Players",
+	"general_priority": "priority",
+	"general_connection_time": "connection time",
+	
+	"popup_player_invalid_rank_to_join": "You do not have the required ranks to join the server.",
+	"popup_player_not_member_of_discord_server": "You must be a member of our Discord server to join this server.",
+	
+	"discord_logged_in": "Discord: Logged in as {0}!",
+	"discord_invalid_server_id": "Discord: No server_id set or invalid, verify your config file.",
+	"discord_invalid_channel_id": "Discord: No channel_id set or invalid, skipping live authentication messages.",
+	"discord_error_message": "Discord Error: {0}",
+	
+	"discord_notification_player_has_joined": "({rank}) @{discordname} [{gamename}] has joined the server.",
+	"discord_notification_player_added_to_queue": "({rank}) @{discordname} [{gamename}] has been added to the queue to join the server.",
+	"discord_notification_player_invalid_rank_to_join": "@{discordname} [{gamename}] doesn't have the required rank to join the server.",
+	"discord_notification_player_not_member_of_discord_server": "{gamename} is not a member of the discord server and couldn't join the server.",
+	"discord_notification_player_joined_after_queue": "({rank}) @{discordname} [{gamename}] entered the game after waiting in queue!",
+	"discord_notification_player_left_game": "({rank}) @{discordname} [{gamename}] left the game!",
+	"discord_notification_player_dropped_on_command": "@{discordname} has dropped!\nReason: {reason}",
+	
+	"websocket_connected_to_port": "Connected to FiveM server on port {0}!",
+	"websocket_message_received": "Received message:",
+	"websocket_retry_connection": "Retrying connection to FiveM server...",
+	"websocket_error_connection": "Error connecting to FiveM server!",
+	
+	"event_log_authentication_timed_out": "{discordname} [{gamename}] authentication timed out!",
+	"event_log_player_joined_completed": "{discordname} [{gamename}] loaded in the game!",
+	
+	"commandline_is_running": "Commandline running...",
+	"commandline_is_paused": "Commandline paused!",
+	"commandline_debug_running_command": "Running command: {0}",
+	"commandline_command_not_found": "Command '{0}' doesn't exist, type help or ?",
+	"commandline_reloaded_locale": "Locale reloaded!",
+	"commandline_reloaded_ranks": "Ranks reloaded!",
+	
+	"commands_description_info": "Get server informations.",
+	"commands_description_debug": "Set the debug on or off temporally.",
+	"commands_description_player": "Get information about a player.",
+	"commands_description_players": "List all currently connected players.",
+	"commands_description_queued": "List all currently queued players.",
+	"commands_description_all": "List all currently connected & queued players.",
+	"commands_description_drop": "Drop an online player.",
+	"commands_description_forcedrop": "Drop an important online player.",
+	"commands_description_ranks": "Print the current loaded ranks.",
+	"commands_description_reload_ranks": "Reload the ranks config file.",
+	"commands_description_reload_locale": "Reload the current locale language file.",
+	
+	"command_info_debug": "Debug:         {0}",
+	"command_info_port": "Port:          {0}",
+	"command_info_total_ranks": "Total Ranks:   {0}",
+	"command_info_max_players": "Max players:   {0}",
+	"command_info_online_count": "Online Count:  {0}",
+	"command_info_queued_count": "Queued Count:  {0}",
+	"command_info_info_time": "Info Time:     {0}",
+	
+	"command_debug_enabled": "enabled",
+	"command_debug_disabled": "disabled",
+	"command_debug_toggled": "Debug has been {0}",
+	
+	"command_drop_cannot_not_online": "Player {0} cannot be dropped! Reason: Player not online!",
+	"command_drop_cannot_admin_rank": "Player {0} cannot be dropped! Reason: Player has admin rank!",
+	"command_drop_cannot_important_rank": "Player {0} cannot be dropped! Reason: Player has important rank!",
+	"command_drop_cannot_not_found": "Player '{0}' was not found!",
+	"command_drop_success": "Player {discordname} has been dropped! Reason: {reason}",
+	"command_drop_default_reason": "Dropped on command!",
+	
+	"command_player_not_found": "Player '{0}' was not found!"
+}
