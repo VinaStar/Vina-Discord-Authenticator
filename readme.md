@@ -1,7 +1,5 @@
 # Vina Discord Authenticator 2.0
 
-![Node Preview](https://i.imgur.com/z4lutAi.png)
-
 ## WIKI
 - [Preparation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/0%29-Preparation)
 - [Installation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/1%29-Installation)
@@ -30,3 +28,6 @@
 - [Download](https://github.com/VinaStar/Vina-Discord-Authenticator/releases)
 - [Have an issue?](https://github.com/VinaStar/Vina-Discord-Authenticator/issues)
 - [FiveM Forum Post](https://forum.cfx.re/t/release-vina-discord-authenticator/1865416)
+
+## SCREENSHOTS
+![Node Preview](https://i.imgur.com/z4lutAi.png)
