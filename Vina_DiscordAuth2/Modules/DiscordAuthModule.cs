@@ -7,6 +7,8 @@ using WebSocketSharp.Server;
 
 using VinaFrameworkServer.Core;
 using Vina_DiscordAuth2.WebSocket;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Vina_DiscordAuth2.Modules
 {
@@ -17,9 +19,6 @@ namespace Vina_DiscordAuth2.Modules
             DiscordAuthSocket.server = server;
 
             socket = new WebSocketServer(API.GetConvarInt("vina_discord_auth_port", 8085));
-
-            script.AddEvent("playerConnecting", new Action<Player, string, dynamic, dynamic>(OnPlayerConnecting));
-            script.AddEvent("playerJoining", new Action<Player>(OnPlayerJoining));
         }
 
         #region VARIABLES
@@ -35,13 +34,15 @@ namespace Vina_DiscordAuth2.Modules
             socket.Start();
         }
 
-        protected async void OnPlayerConnecting([FromSource] Player player, string playerName, dynamic setKickReason, dynamic deferrals)
+        protected override async void OnPlayerConnecting(Player player, dynamic deferrals)
         {
             deferrals.defer();
 
             await Server.Delay(0);
 
             deferrals.update("Authentication initializing...");
+
+            await Server.Delay(1000);
 
             while (DiscordAuthSocket.socket == null || DiscordAuthSocket.socket.State != WebSocketSharp.WebSocketState.Open)
             {
@@ -54,7 +55,7 @@ namespace Vina_DiscordAuth2.Modules
             else deferrals.done();
         }
 
-        protected void OnPlayerJoining([FromSource] Player player)
+        protected override void OnPlayerJoining(Player player)
         {
             DiscordAuthSocket.socket.OnPlayerJoining(player);
         }

@@ -13,6 +13,7 @@
    https://vinasky.online/
 */
 
+// Console process
 const readline = require('readline');
 process.on('uncaughtException', function (err) {
     console.log('Caught exception: ' + err);
@@ -26,14 +27,14 @@ const rl = readline.createInterface({
 let configPath = "config.json";
 let ranksPath = "ranks.json";
 process.argv.forEach((a, i) => {
-	if (a.includes("--config=")) {
-		configPath = process.argv[i].split("=")[1];
-		console.log("Loading config file ->", configPath);
-	}
-	if (a.includes("--ranks=")) {
-		ranksPath = process.argv[i].split("=")[1];
-		console.log("Loading ranks file ->", ranksPath);
-	}
+    if (a.includes("--config=")) {
+        configPath = process.argv[i].split("=")[1];
+        console.log("Loading config file ->", configPath);
+    }
+    if (a.includes("--ranks=")) {
+        ranksPath = process.argv[i].split("=")[1];
+        console.log("Loading ranks file ->", ranksPath);
+    }
 });
 
 // Initialize
@@ -82,7 +83,7 @@ client.on('ready', () => {
 
     if (!server) {
         throw text(locale.discord_invalid_server_id);
-	}
+    }
     if (!channel) console.log(text(locale.discord_invalid_channel_id));
 
     console.log(line);
@@ -212,7 +213,7 @@ client.on('ready', () => {
                 case "GetServerInfo":
                     api.HandleGetServerInfo(data.maxPlayers, data.playerCount, data.onlineList, data.queuedCount, data.queuedList, data.time);
                     break;
-			}
+            }
         });
 
         // Websocket disconnected

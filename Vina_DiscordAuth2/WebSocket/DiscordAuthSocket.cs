@@ -25,13 +25,15 @@ namespace Vina_DiscordAuth2.WebSocket
             }
         }
 
-        bool updatingQueue = false;
-        DateTime lastQueuedPlayerJoiningTime;
-        Dictionary<long, string> queueProcess;
+        bool updatingQueue = false; // The queue is being updated
+        DateTime lastQueuedPlayerJoiningTime; // The time a queued slot freed
+        Dictionary<long, string> queueProcess; // storing each auth process
 
         int maxPlayers;
-        List<string> validAuths;
-        Dictionary<string, string> invalidAuths;
+
+        List<string> validAuthResponses;
+        Dictionary<string, string> invalidAuthResponses;
+
         Dictionary<string, OnlinePlayerInfo> onlinePlayers;
         Dictionary<string, QueuePlayerInfo> queuedPlayers;
 
@@ -40,8 +42,8 @@ namespace Vina_DiscordAuth2.WebSocket
             lastQueuedPlayerJoiningTime = DateTime.Now;
             queueProcess = new Dictionary<long, string>();
 
-            validAuths = new List<string>();
-            invalidAuths = new Dictionary<string, string>();
+            validAuthResponses = new List<string>();
+            invalidAuthResponses = new Dictionary<string, string>();
             onlinePlayers = new Dictionary<string, OnlinePlayerInfo>();
             queuedPlayers = new Dictionary<string, QueuePlayerInfo>();
         }
@@ -49,11 +51,11 @@ namespace Vina_DiscordAuth2.WebSocket
         protected override void OnOpen()
         {
             if (socket != null) return;
-
-            maxPlayers = API.GetConvarInt("sv_maxclients", 32);
-
             Debug.WriteLine("DiscordAuthSocket connection opened!");
             socket = this;
+
+            // Get max players
+            maxPlayers = API.GetConvarInt("sv_maxclients", 32);
 
             // Add currently connected player
             onlinePlayers.Clear();
@@ -62,6 +64,7 @@ namespace Vina_DiscordAuth2.WebSocket
                 onlinePlayers.Add(player.Identifiers["discord"], new OnlinePlayerInfo(player.Name));
             }
 
+            // Inform node
             SendServerInfo();
         }
 
@@ -74,12 +77,12 @@ namespace Vina_DiscordAuth2.WebSocket
 
             if (action == "valid")
             {
-                validAuths.Add(discordId);
+                validAuthResponses.Add(discordId);
             }
 
             else if (action == "invalid")
             {
-                invalidAuths.Add(discordId, Data.reason);
+                invalidAuthResponses.Add(discordId, Data.reason);
             }
 
             else if (action == "addQueue")
@@ -143,7 +146,7 @@ namespace Vina_DiscordAuth2.WebSocket
             Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication starting...");
 
             // Wait for reply
-            while (!validAuths.Contains(discordId) && !invalidAuths.ContainsKey(discordId) && !queuedPlayers.ContainsKey(discordId))
+            while (!validAuthResponses.Contains(discordId) && !invalidAuthResponses.ContainsKey(discordId) && !queuedPlayers.ContainsKey(discordId))
             {
                 deferrals.update($"Authentication in progress... [Players: {API.GetNumPlayerIndices()}/{maxPlayers}]");
                 await Server.Delay(100);
@@ -165,18 +168,18 @@ namespace Vina_DiscordAuth2.WebSocket
             }
 
             // Valid Authentication
-            if (validAuths.Contains(discordId))
+            if (validAuthResponses.Contains(discordId))
             {
-                message = "";
-                validAuths.Remove(discordId);
+                message = ""; // no message = valid
+                validAuthResponses.Remove(discordId);
                 Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication success!");
             }
 
             // Invalid Authentication
-            else if (invalidAuths.ContainsKey(discordId))
+            else if (invalidAuthResponses.ContainsKey(discordId))
             {
-                message = invalidAuths[discordId];
-                invalidAuths.Remove(discordId);
+                message = invalidAuthResponses[discordId];
+                invalidAuthResponses.Remove(discordId);
                 Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication failed!\nReason: {message}");
             }
 
@@ -186,6 +189,8 @@ namespace Vina_DiscordAuth2.WebSocket
                 // Handle multiple attempts
                 bool canceled = false;
                 long processId = DateTime.Now.Ticks;
+
+                // Verify if there isa already a queue process for this user
                 if (queueProcess.ContainsValue(discordId))
                 {
                     Dictionary<long, string> temp = new Dictionary<long, string>(queueProcess);
@@ -193,11 +198,12 @@ namespace Vina_DiscordAuth2.WebSocket
                     {
                         if (pair.Value == discordId)
                         {
-                            Debug.WriteLine($"Canceled a previous queue process {pair.Key} for {pair.Value}");
+                            Debug.WriteLine($"Canceling a previous queue process {pair.Key} for {pair.Value}");
                             queueProcess.Remove(pair.Key);
                             break;
                         }
                     }
+                    temp = null;
                 }
                 queueProcess.Add(processId, discordId);
                 Debug.WriteLine($"Starting a queue process {processId} for {discordId}");
@@ -208,20 +214,25 @@ namespace Vina_DiscordAuth2.WebSocket
                 Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication queued [{queuedPlayers[discordId].Priority}/{queuedPlayers.Count}]");
                 while (!canceled && queuedPlayers.ContainsKey(discordId))
                 {
+                    // Check if this current process has been removed by a new process
                     if (!queueProcess.ContainsKey(processId))
                     {
                         canceled = true;
                         break;
                     }
 
-                    await UpdateQueue();
+                    await UpdateQueue(); // Update the queue
+
+                    // If we still in queue update popup message
                     if (queuedPlayers.ContainsKey(discordId))
                     {
                         deferrals.update($"Waiting for a player to leave... [Priority: {queuedPlayers[discordId].Priority} | Total queued: {queuedPlayers.Count}]...");
                     }
+
                     await Server.Delay(1000);
                 }
 
+                // If this process loop completed and it wasnt canceled then this player can join
                 if (!canceled)
                 {
                     SocketMessage queuedCompletedMessage = new SocketMessage();
@@ -279,13 +290,10 @@ namespace Vina_DiscordAuth2.WebSocket
 
         internal void DropPlayer(string discordId, string reason)
         {
-            foreach (Player player in server.GetPlayers())
+            Player player = server.GetPlayerByIdentifier("discord", discordId);
+            if (player != null)
             {
-                if (player.Identifiers["discord"] == discordId)
-                {
-                    player.Drop(reason);
-                    return;
-                }
+                player.Drop(reason);
             }
         }
 
@@ -296,19 +304,19 @@ namespace Vina_DiscordAuth2.WebSocket
             // test
             //return;
 
-            if (updatingQueue) return;
-            if (DateTime.Now.Subtract(lastQueuedPlayerJoiningTime).TotalSeconds < 5) return;
+            if (updatingQueue) return; // Skip if already being updated
+            if (DateTime.Now.Subtract(lastQueuedPlayerJoiningTime).TotalSeconds < 5) return; // Wait till current joining player is in.
 
             updatingQueue = true;
 
             // There is room for a queued player to join
             if (API.GetNumPlayerIndices() < maxPlayers)
             {
-                // There is queued players
+                // There is at least one queued player
                 if (queuedPlayers.Count > 0)
                 {
                     string nextUnqueued = "";
-                    int lastPriority = 999999999;
+                    int lastPriority = 999999999; // start high, lowest priority number is best priority
 
                     try
                     {
