@@ -4,6 +4,7 @@
 - [Preparation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/0%29-Preparation)
 - [Installation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/1%29-Installation)
 - [Configuration](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/2%29-Configuration)
+- [Commandline](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/3%29-Commandline)
 
 ## FEATURES
 - Completely rewritten (Built on VinaFramework)
