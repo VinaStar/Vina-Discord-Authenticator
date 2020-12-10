@@ -21,6 +21,8 @@
 
 ## PLANNED
 - Admin/Important roles auto-kick lower Ranks when joining full server.
+- Create/Edit/Remove Ranks from Commandline.
+- Assign user role from Commandline.
 
 ## LINKS
 - [Download](https://github.com/VinaStar/Vina-Discord-Authenticator/releases)
