@@ -1,9 +1,9 @@
 # Vina Discord Authenticator 2.0
 
 ## WIKI
-- [Preparation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/0)
-- [Installation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/1)
-- [Configuration](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/2)
+- [Preparation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/0%29-Preparation)
+- [Installation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/1%29-Installation)
+- [Configuration](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/2%29-Configuration)
 
 ## FEATURES
 - Completely rewritten (Built on VinaFramework)
