@@ -23,6 +23,8 @@
 - Admin/Important roles auto-kick lower Ranks when joining full server.
 - Create/Edit/Remove Ranks from Commandline.
 - Assign user role from Commandline.
+- Show authentication custom Card.
+- Update player Discord Presence.
 
 ## LINKS
 - [Download](https://github.com/VinaStar/Vina-Discord-Authenticator/releases)
