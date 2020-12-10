@@ -1,5 +1,7 @@
 # Vina Discord Authenticator 2.0
 
+![Node Preview](https://i.imgur.com/z4lutAi.png)
+
 ## WIKI
 - [Preparation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/0%29-Preparation)
 - [Installation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/1%29-Installation)
