@@ -3,6 +3,7 @@
 _releases
 packages
 .vs
+node_modules
 dev_config.json
 dev_ranks.json
 start_dev.bat

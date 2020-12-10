@@ -25,6 +25,10 @@ namespace Vina_DiscordAuth2.WebSocket
             }
         }
 
+        bool updatingQueue = false;
+        DateTime lastQueuedPlayerJoiningTime;
+        Dictionary<long, string> queueProcess;
+
         int maxPlayers;
         List<string> validAuths;
         Dictionary<string, string> invalidAuths;
@@ -33,6 +37,9 @@ namespace Vina_DiscordAuth2.WebSocket
 
         public DiscordAuthSocket()
         {
+            lastQueuedPlayerJoiningTime = DateTime.Now;
+            queueProcess = new Dictionary<long, string>();
+
             validAuths = new List<string>();
             invalidAuths = new Dictionary<string, string>();
             onlinePlayers = new Dictionary<string, OnlinePlayerInfo>();
@@ -48,7 +55,9 @@ namespace Vina_DiscordAuth2.WebSocket
             Debug.WriteLine("DiscordAuthSocket connection opened!");
             socket = this;
 
-            foreach(Player player in server.GetPlayers())
+            // Add currently connected player
+            onlinePlayers.Clear();
+            foreach (Player player in server.GetPlayers())
             {
                 onlinePlayers.Add(player.Identifiers["discord"], new OnlinePlayerInfo(player.Name));
             }
@@ -75,17 +84,20 @@ namespace Vina_DiscordAuth2.WebSocket
 
             else if (action == "addQueue")
             {
-                queuedPlayers.Add(discordId, new QueuePlayerInfo(username, Data.priority));
+                if (!queuedPlayers.ContainsKey(discordId))
+                    queuedPlayers.Add(discordId, new QueuePlayerInfo(username, Data.priority));
             }
 
             else if (action == "updateQueue")
             {
-                queuedPlayers[discordId].Priority = Data.priority;
+                if (queuedPlayers.ContainsKey(discordId))
+                    queuedPlayers[discordId].Priority = Data.priority;
             }
 
             else if (action == "removeQueue")
             {
-                queuedPlayers.Remove(discordId);
+                if (queuedPlayers.ContainsKey(discordId))
+                    queuedPlayers.Remove(discordId);
             }
 
             else if (action == "requestPlayerDrop")
@@ -171,22 +183,56 @@ namespace Vina_DiscordAuth2.WebSocket
             // Queued Authentication
             else if (queuedPlayers.ContainsKey(discordId))
             {
-                Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication queued [{queuedPlayers[discordId]}/{queuedPlayers.Count}]");
-                while (queuedPlayers.ContainsKey(discordId))
+                // Handle multiple attempts
+                bool canceled = false;
+                long processId = DateTime.Now.Ticks;
+                if (queueProcess.ContainsValue(discordId))
                 {
-                    UpdateQueue();
-                    deferrals.update($"Waiting for a player to leave... [Priority: {queuedPlayers[discordId]} | Total queued: {queuedPlayers.Count}]...");
+                    Dictionary<long, string> temp = new Dictionary<long, string>(queueProcess);
+                    foreach (KeyValuePair<long, string> pair in temp)
+                    {
+                        if (pair.Value == discordId)
+                        {
+                            Debug.WriteLine($"Canceled a previous queue process {pair.Key} for {pair.Value}");
+                            queueProcess.Remove(pair.Key);
+                            break;
+                        }
+                    }
+                }
+                queueProcess.Add(processId, discordId);
+                Debug.WriteLine($"Starting a queue process {processId} for {discordId}");
+                
+                SendServerInfo();
+
+                // Start this queue process
+                Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication queued [{queuedPlayers[discordId].Priority}/{queuedPlayers.Count}]");
+                while (!canceled && queuedPlayers.ContainsKey(discordId))
+                {
+                    if (!queueProcess.ContainsKey(processId))
+                    {
+                        canceled = true;
+                        break;
+                    }
+
+                    await UpdateQueue();
+                    if (queuedPlayers.ContainsKey(discordId))
+                    {
+                        deferrals.update($"Waiting for a player to leave... [Priority: {queuedPlayers[discordId].Priority} | Total queued: {queuedPlayers.Count}]...");
+                    }
                     await Server.Delay(1000);
                 }
 
-                SocketMessage queuedCompletedMessage = new SocketMessage();
-                queuedCompletedMessage.action = "OnAuthenticationQueuedCompleted";
-                queuedCompletedMessage.username = username;
-                queuedCompletedMessage.discordId = discordId;
-                queuedCompletedMessage.time = now;
-                if (isOpen) Send(queuedCompletedMessage.ToJson());
+                if (!canceled)
+                {
+                    SocketMessage queuedCompletedMessage = new SocketMessage();
+                    queuedCompletedMessage.action = "OnAuthenticationQueuedCompleted";
+                    queuedCompletedMessage.username = username;
+                    queuedCompletedMessage.discordId = discordId;
+                    queuedCompletedMessage.time = now;
+                    if (isOpen) Send(queuedCompletedMessage.ToJson());
 
-                Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication completed!");
+                    Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication completed!");
+                }
             }
 
             return message;
@@ -243,8 +289,18 @@ namespace Vina_DiscordAuth2.WebSocket
             }
         }
 
-        internal void UpdateQueue()
+        internal async Task UpdateQueue()
         {
+            await Server.Delay(0);
+
+            // test
+            //return;
+
+            if (updatingQueue) return;
+            if (DateTime.Now.Subtract(lastQueuedPlayerJoiningTime).TotalSeconds < 5) return;
+
+            updatingQueue = true;
+
             // There is room for a queued player to join
             if (API.GetNumPlayerIndices() < maxPlayers)
             {
@@ -254,24 +310,37 @@ namespace Vina_DiscordAuth2.WebSocket
                     string nextUnqueued = "";
                     int lastPriority = 999999999;
 
-                    // Loop in order of first queued
-                    foreach(KeyValuePair<string, QueuePlayerInfo> pair in queuedPlayers)
+                    try
                     {
-                        string discordId = pair.Key;
-                        QueuePlayerInfo queuedInfo = pair.Value;
-
-                        // If this player priority is better
-                        if (queuedInfo.Priority < lastPriority)
+                        // Loop in order of first queued
+                        foreach (KeyValuePair<string, QueuePlayerInfo> pair in queuedPlayers)
                         {
-                            nextUnqueued = discordId;
+                            string discordId = pair.Key;
+                            QueuePlayerInfo queuedInfo = pair.Value;
+
+                            // If this player priority is better
+                            if (queuedInfo.Priority < lastPriority)
+                            {
+                                nextUnqueued = discordId;
+                            }
+
+                            lastPriority = queuedInfo.Priority;
                         }
 
-                        lastPriority = queuedInfo.Priority;
+                        if (nextUnqueued != "")
+                        {
+                            lastQueuedPlayerJoiningTime = DateTime.Now;
+                            queuedPlayers.Remove(nextUnqueued);
+                        }
                     }
-
-                    queuedPlayers.Remove(nextUnqueued);
+                    catch(Exception exception)
+                    {
+                        Debug.WriteLine($"EXCEPTION IN UPDATE QUEUE:\n{exception.Message}\n{exception.StackTrace}");
+                    }
                 }
             }
+
+            updatingQueue = false;
         }
 
         internal void SendServerInfo()

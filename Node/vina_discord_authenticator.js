@@ -206,7 +206,7 @@ client.on('ready', () => {
                     break;
 
                 case "OnPlayerDropped":
-                    api.HandleOnPlayerDropped(data.username, data.discordId, data.reason);
+                    api.HandleOnPlayerDropped(data.username, data.discordId, data.reason, data.time);
                     break;
 
                 case "GetServerInfo":

@@ -1,9 +1,12 @@
 ﻿using System;
 
+using CitizenFX.Core;
+using CitizenFX.Core.Native;
+
+using WebSocketSharp.Server;
+
 using VinaFrameworkServer.Core;
 using Vina_DiscordAuth2.WebSocket;
-using CitizenFX.Core;
-using WebSocketSharp.Server;
 
 namespace Vina_DiscordAuth2.Modules
 {
@@ -13,7 +16,7 @@ namespace Vina_DiscordAuth2.Modules
         {
             DiscordAuthSocket.server = server;
 
-            socket = new WebSocketServer(8085);
+            socket = new WebSocketServer(API.GetConvarInt("vina_discord_auth_port", 8085));
 
             script.AddEvent("playerConnecting", new Action<Player, string, dynamic, dynamic>(OnPlayerConnecting));
             script.AddEvent("playerJoining", new Action<Player>(OnPlayerJoining));
