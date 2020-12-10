@@ -1,5 +1,7 @@
 # Vina Discord Authenticator 2.0
 
+Allow your Discord members to join your FiveM, line in queue when server is full. Using websocket technology and nodejs receive live notifications on a Discord text channel when someone join, queued or leave your game server. New configurable Ranks system, commandline tools & multi-language support.
+
 ## WIKI
 - [Preparation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/0%29-Preparation)
 - [Installation](https://github.com/VinaStar/Vina-Discord-Authenticator/wiki/1%29-Installation)
