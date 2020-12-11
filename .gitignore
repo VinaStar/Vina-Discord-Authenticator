@@ -10,3 +10,4 @@ start_dev.bat
 package-lock.json
 bin
 obj
+*.zip
