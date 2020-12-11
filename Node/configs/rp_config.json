@@ -1,0 +1,18 @@
+{
+    "debug": false,
+    "commandline": true,
+    "locale": "en",
+    "port": 8085,
+    "reconnectDelay": 3000,
+    "server_id": "667355300831166474",
+    "channel_id": "671387951283830802",
+    "bot_token": "NzAwMDQ0NTQ5OTg0MjIzMjQz.XpdNSg.ZIfc9hXxVQb_2FK-JqnMoSl6DrA",
+    "send_join_notification": true,
+    "send_queued_notification": true,
+    "send_drop_notification": true,
+    "send_kick_notification": true,
+    "notification_join_color": "#63ff66",
+    "notification_queued_color": "#3da1ff",
+    "notification_drop_color": "#ff913d",
+    "notification_kick_color": "#ff3d3d"
+}

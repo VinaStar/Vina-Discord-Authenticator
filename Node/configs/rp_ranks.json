@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Owner",
+        "roleId": "719997161667952674",
+        "admin": true
+    },
+    {
+        "name": "Head of Staff Team",
+        "roleId": "732728105080324196",
+        "admin": true
+    },
+    {
+        "name": "Staff Team",
+        "roleId": "667399326204559391",
+        "important": true
+    },
+    {
+        "name": "Vip Access",
+        "roleId": "720867263070208010",
+        "important": true
+    },
+    {
+        "name": "Premium Whitelist",
+        "roleId": "694877992429682749"
+    },
+    {
+        "name": "True RP: Member",
+        "roleId": "702692410186006600"
+    }
+]

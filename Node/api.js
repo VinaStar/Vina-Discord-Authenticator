@@ -123,18 +123,18 @@ class API
         console.log(`---------------------------------------
 info                         ${text(this.locale.commands_description_info)}
 debug on/off                 ${text(this.locale.commands_description_debug)}
-player idOrName              ${text(this.locale.commands_description_player)}
+player discordId             ${text(this.locale.commands_description_player)}
 players                      ${text(this.locale.commands_description_players)}
 queued                       ${text(this.locale.commands_description_queued)}
 all                          ${text(this.locale.commands_description_all)}
-drop idOrName "reason"       ${text(this.locale.commands_description_drop)}
-forcedrop idOrName "reason"  ${text(this.locale.commands_description_forcedrop)}
+drop discordId "reason"      ${text(this.locale.commands_description_drop)}
+forcedrop discordId "reason" ${text(this.locale.commands_description_forcedrop)}
 ranks                        ${text(this.locale.commands_description_ranks)}
 reloadranks                  ${text(this.locale.commands_description_reload_ranks)}
 reloadlocale                 ${text(this.locale.commands_description_reload_locale)}
 ---------------------------------------`);
     }
-
+    
     CommandInfo()
     {
         console.log("---------------------------------------");
@@ -164,25 +164,23 @@ reloadlocale                 ${text(this.locale.commands_description_reload_loca
 
     CommandListPlayers()
     {
+        console.log("---------------------------------------");
         console.log(`${text(this.locale.general_online_players)}: ${this.playerCount}/${this.maxPlayers}`);
-        Object.keys(this.onlineList).forEach((discordid, i) => {
-            var rank = this.GetPlayerRank(discordid);
-            var displayName = this.DiscordGetDisplayNameById(discordid)
-            console.log(`(${rank.name}) @${displayName} [${this.onlineList[discordid].Username}] ${text(this.locale.general_connection_time)} ${this.onlineList[discordid].Time}`);
+        Object.keys(this.onlineList).forEach((discordId, i) => {
+            console.log(`${discordId} [${this.onlineList[discordId].Username}] ${text(this.locale.general_connection_time)} ${this.onlineList[discordId].Time}`);
         });
     }
 
     CommandListQueued()
     {
+        console.log("---------------------------------------");
         console.log(`${text(this.locale.general_queued_players)}: ${this.queuedCount}`);
-        Object.keys(this.queuedList).forEach((discordid, i) => {
-            var rank = this.GetPlayerRank(discordid);
-            var displayName = this.DiscordGetDisplayNameById(discordid)
-            console.log(`(${rank.name}) @${displayName} [${this.queuedList[discordid].Username}] ${text(this.locale.general_priority)} ${this.queuedList[discordid].Priority}`);
+        Object.keys(this.queuedList).forEach((discordId, i) => {
+            console.log(`${discordId} [${this.queuedList[discordId].Username}] ${text(this.locale.general_priority)} ${this.queuedList[discordId].Priority}`);
         });
     }
 
-    CommandDropId(discordIdOrDisplayName, reason, force = false)
+    CommandDropId(discordId, reason, force = false)
     {
         reason = (reason && reason != "") ? reason : text(this.locale.command_drop_default_reason);
 
@@ -276,32 +274,32 @@ reloadlocale                 ${text(this.locale.commands_description_reload_loca
 
     DiscordGetUserById(discordId)
     {
-        return this.server.members.filter(user => user.id === discordId);
-    }
-
-    DiscordGetUserByDisplayName(displayName)
-    {
-        return this.server.members.filter(user => user.displayName === displayName);
+		return this.server.fetchMember(discordId).catch(console.log);
     }
 
     DiscordGetDisplayNameById(discordId)
     {
-        return this.server.members.filter(user => user.id === discordId).map(user => user.displayName)[0];
-    }
-
-    DiscordGetIdByDisplayName(displayName)
-    {
-        return this.server.members.filter(user => user.displayName === displayName).map(user => user.id)[0];
+        return this.DiscordGetUserById(discordId)
+            .then(user => user.displayName)
+            .catch(console.log);
     }
 
     DiscordGetUserRoles(discordId)
     {
-        return this.DiscordGetUserById(discordId).map(user => user.roles.map(role => role.id))[0] || [];
+        return this.DiscordGetUserById(discordId)
+            .then(user => {
+                return user.roles.map(role => role.id);
+            })
+            .catch(console.log);
     }
 
     DiscordUserHasRole(discordId, roleId)
     {
-        return this.DiscordGetUserRoles(discordId).includes(roleId);
+        return this.DiscordGetUserRoles(discordId)
+            .then(roles => {
+                return roles.includes(roleId);
+            })
+            .catch(console.log);
     }
 
     // MISCS
@@ -320,26 +318,34 @@ reloadlocale                 ${text(this.locale.commands_description_reload_loca
 
     GetPlayerRank(discordId)
     {
-        for(var i = 0; i < this.ranks.length; i++)
-        {
-            if (this.DiscordUserHasRole(discordId, this.ranks[i].roleId)) 
-            {
-                return this.ranks[i];
-            }
-        }
-        return null;
+        return this.DiscordGetUserRoles(discordId)
+            .then(roles => {
+                for(var i = 0; i < this.ranks.length; i++)
+                {
+                    if (roles.includes(this.ranks[i].roleId))
+                    {
+                        return this.ranks[i];
+                    }
+                }
+                return null;
+            })
+            .catch(console.log);
     }
 
     GetPlayerRankPriority(discordId)
     {
-        for(var i = 0; i < this.ranks.length; i++)
-        {
-            if (this.DiscordUserHasRole(discordId, this.ranks[i].roleId)) 
-            {
-                return i;
-            }
-        }
-        return this.ranks.length + 1;
+        return this.DiscordGetUserRoles(discordId)
+            .then(roles => {
+                for(var i = 0; i < this.ranks.length; i++)
+                {
+                    if (roles.includes(this.ranks[i].roleId))
+                    {
+                        return i;
+                    }
+                }
+                return this.ranks.length + 1;
+            })
+            .catch(console.log);
     }
 
     GetLowestRankPriorityOnlinePlayer()
@@ -351,112 +357,120 @@ reloadlocale                 ${text(this.locale.commands_description_reload_loca
 
     HandleOnPlayerConnecting(username, discordId, time)
     {
-        var user = this.DiscordGetUserById(discordId);
-        var displayName = this.DiscordGetDisplayNameById(discordId);
-
-        // User exist
-        if (user.size === 1)
-        {
-            var rank = this.GetPlayerRank(discordId);
+        this.DiscordGetUserById(discordId)
+        // Found
+        .then(user => {
             
-            // Has rank to join
-            if (rank != null)
-            {
-				/* test queue 
-				var priority = this.GetPlayerRankPriority(discordId);
-				this.DoAddQueue(discordId, username, priority);
-				
-				this.DiscordSendChannelQueuedNotification(text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: displayName, gamename: username }));
-				
-				console.log(time, text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: displayName, gamename: username }));
-				return;*/
+            return this.GetPlayerRank(discordId)
+            // has a rank
+            .then(rank => {
 
                 // Server not full
                 if (this.playerCount < this.maxPlayers)
                 {
                     this.DoValid(discordId);
 
-                    this.DiscordSendChannelJoinNotification(text(this.locale.discord_notification_player_has_joined, { rank: rank.name, discordname: displayName, gamename: username }));
+                    this.DiscordSendChannelJoinNotification(text(this.locale.discord_notification_player_has_joined, { rank: rank.name, discordname: user.displayName, gamename: username }));
                     
-                    console.log(time, text(this.locale.discord_notification_player_has_joined, { rank: rank.name, discordname: displayName, gamename: username }));
+                    console.log(time, text(this.locale.discord_notification_player_has_joined, { rank: rank.name, discordname: user.displayName, gamename: username }));
                 }
                 // Server is full
                 else 
                 {
-                    // This rank kick lower (for now it just add to queue)
-                    if (rank.canKick)
-                    {
-                        var priority = this.GetPlayerRankPriority(discordId);
-                        this.DoAddQueue(discordId, priority);
-                        
-                        this.DiscordSendChannelQueuedNotification(text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: displayName, gamename: username }));
-                        
-                        console.log(time, text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: displayName, gamename: username }));
-                    }
-                    // This rank must wait
-                    else
-                    {
-                        var priority = this.GetPlayerRankPriority(discordId);
-                        this.DoAddQueue(discordId, priority);
-                        
-                        this.DiscordSendChannelQueuedNotification(text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: displayName, gamename: username }));
-                        
-                        console.log(time, text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: displayName, gamename: username }));
-                    }
+                    // get priority
+                    this.GetPlayerRankPriority(discordId)
+                    .then(priority => {
+                        // This rank kick lower (for now it just add to queue)
+                        if (rank.admin)
+                        {
+                            this.DoAddQueue(discordId, priority);
+                            
+                            this.DiscordSendChannelQueuedNotification(text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: user.displayName, gamename: username }));
+                            
+                            console.log(time, text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: user.displayName, gamename: username }));
+                        }
+                        // This rank must wait
+                        else
+                        {
+                            this.DoAddQueue(discordId, priority);
+                            
+                            this.DiscordSendChannelQueuedNotification(text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: user.displayName, gamename: username }));
+                            
+                            console.log(time, text(this.locale.discord_notification_player_added_to_queue, { rank: rank.name, discordname: user.displayName, gamename: username }));
+                        }
+                    })
+                    .catch(console.log);
                 }
-            }
-            // Doesn't have rank to join
-            else
-            {
+
+            })
+            // doesnt have a rank
+            .catch(() => {
+
                 this.DoInvalid(discordId, text(this.locale.popup_player_invalid_rank_to_join));
+        
+                this.DiscordSendChannelJoinNotification(text(this.locale.discord_notification_player_invalid_rank_to_join, { discordname: user.displayName, gamename: username }));
                 
-                this.DiscordSendChannelJoinNotification(text(this.locale.discord_notification_player_invalid_rank_to_join, { discordname: displayName, gamename: username }));
-                
-                console.log(time, text(this.locale.discord_notification_player_invalid_rank_to_join, { discordname: displayName, gamename: username }));
-            }
-        }
-        // User doesn't exist
-        else
-        {
+                console.log(time, text(this.locale.discord_notification_player_invalid_rank_to_join, { discordname: user.displayName, gamename: username }));
+
+            });
+
+        })
+        // Not found
+        .catch(() => {
+
             this.DoInvalid(discordId, text(this.locale.popup_player_not_member_of_discord_server));
-            
+        
             this.DiscordSendChannelJoinNotification(text(this.locale.discord_notification_player_not_member_of_discord_server, { gamename: username }));
             
             console.log(time, text(this.locale.discord_notification_player_not_member_of_discord_server, { gamename: username }));
-        }
+
+        });
     }
 
     HandleOnAuthenticationTimeOut(username, discordId, time)
     {
-        var displayName = this.DiscordGetDisplayNameById(discordId);
-        console.log(time, text(this.locale.event_log_authentication_timed_out, { discordname: displayName, gamename: username }));
+        this.DiscordGetUserById(discordId)
+        .then(user => {
+            console.log(time, text(this.locale.event_log_authentication_timed_out, { discordname: user.displayName, gamename: username }));
+        })
+        .catch(console.log);
     }
 
     HandleOnAuthenticationQueuedCompleted(username, discordId, time)
     {
-        var rank = this.GetPlayerRank(discordId);
-        var displayName = this.DiscordGetDisplayNameById(discordId);
-        
-        this.DiscordSendChannelJoinNotification(text(this.locale.discord_notification_player_joined_after_queue, { rank: rank.name, discordname: displayName, gamename: username }));
-        
-        console.log(time, text(this.locale.discord_notification_player_joined_after_queue, { rank: rank.name, discordname: displayName, gamename: username }));
+        this.DiscordGetUserById(discordId)
+        .then(user => {
+            return this.GetPlayerRank(discordId)
+            .then(rank => {
+                this.DiscordSendChannelJoinNotification(text(this.locale.discord_notification_player_joined_after_queue, { rank: rank.name, discordname: user.displayName, gamename: username }));
+                
+                console.log(time, text(this.locale.discord_notification_player_joined_after_queue, { rank: rank.name, discordname: user.displayName, gamename: username }));
+            });
+        })
+        .catch(console.log);
     }
 
     HandleOnPlayerJoining(username, discordId, time)
     {
-        var displayName = this.DiscordGetDisplayNameById(discordId);
-        
-        console.log(time, text(this.locale.event_log_player_joined_completed, { discordname: displayName, gamename: username }));
+        this.DiscordGetUserById(discordId)
+        .then(user => {
+            console.log(time, text(this.locale.event_log_player_joined_completed, { discordname: user.displayName, gamename: username }));
+        })
+        .catch(console.log);
     }
 
     HandleOnPlayerDropped(username, discordId, reason, time)
     {
-        var rank = this.GetPlayerRank(discordId);
-        var displayName = this.DiscordGetDisplayNameById(discordId);
+        this.DiscordGetUserById(discordId)
+        .then(user => {
+            return this.GetPlayerRank(discordId)
+            .then(rank => {
+                this.DiscordSendChannelDropNotification(text(this.locale.discord_notification_player_left_game, { rank: rank.name, discordname: user.displayName, gamename: username }));
         
-        this.DiscordSendChannelDropNotification(text(this.locale.discord_notification_player_left_game, { rank: rank.name, discordname: displayName, gamename: username }));
-        
-        console.log(time, text(this.locale.discord_notification_player_left_game, { rank: rank.name, discordname: displayName, gamename: username }));
+                console.log(time, text(this.locale.discord_notification_player_left_game, { rank: rank.name, discordname: user.displayName, gamename: username }));
+            });
+        })
+        .catch(console.log);
     }
 
     HandleGetServerInfo(maxPlayers, playerCount, onlineList, queuedCount, queuedList, time)
@@ -523,8 +537,11 @@ reloadlocale                 ${text(this.locale.commands_description_reload_loca
         data.reason = reason;
         this.ws.send(JSON.stringify(data));
 
-        var displayName = this.DiscordGetDisplayNameById(discordId);
-        this.DiscordSendChannelKickNotification(text(this.locale.discord_notification_player_dropped_on_command, { discordname: displayName, reason: reason }));
+        this.DiscordGetUserById(discordId)
+        .then(user => {
+            this.DiscordSendChannelKickNotification(text(this.locale.discord_notification_player_dropped_on_command, { discordname: user.displayName, reason: reason }));
+        })
+        .catch(console.log);
     }
 
     DoRequestServerInfo()

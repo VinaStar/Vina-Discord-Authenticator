@@ -141,9 +141,9 @@ namespace Vina_DiscordAuth2.WebSocket
             socketMessage.username = username;
             socketMessage.discordId = discordId;
             socketMessage.time = now;
-            if (isOpen) Send(socketMessage.ToJson());
+            SafeSend(socketMessage.ToJson());
 
-            Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication starting...");
+            //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication starting...");
 
             // Wait for reply
             while (!validAuthResponses.Contains(discordId) && !invalidAuthResponses.ContainsKey(discordId) && !queuedPlayers.ContainsKey(discordId))
@@ -153,14 +153,14 @@ namespace Vina_DiscordAuth2.WebSocket
 
                 if (DateTime.Now > now.AddSeconds(10))
                 {
-                    Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication timed out!");
+                    //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication timed out!");
 
                     SocketMessage timeoutMessage = new SocketMessage();
                     timeoutMessage.action = "OnAuthenticationTimeOut";
                     timeoutMessage.username = username;
                     timeoutMessage.discordId = discordId;
                     timeoutMessage.time = now;
-                    if (isOpen) Send(timeoutMessage.ToJson());
+                    SafeSend(timeoutMessage.ToJson());
 
                     deferrals.done("Authentication timed out!");
                     break;
@@ -172,7 +172,7 @@ namespace Vina_DiscordAuth2.WebSocket
             {
                 message = ""; // no message = valid
                 validAuthResponses.Remove(discordId);
-                Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication success!");
+                //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication success!");
             }
 
             // Invalid Authentication
@@ -180,7 +180,7 @@ namespace Vina_DiscordAuth2.WebSocket
             {
                 message = invalidAuthResponses[discordId];
                 invalidAuthResponses.Remove(discordId);
-                Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication failed!\nReason: {message}");
+                //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication failed!\nReason: {message}");
             }
 
             // Queued Authentication
@@ -198,7 +198,7 @@ namespace Vina_DiscordAuth2.WebSocket
                     {
                         if (pair.Value == discordId)
                         {
-                            Debug.WriteLine($"Canceling a previous queue process {pair.Key} for {pair.Value}");
+                            //Debug.WriteLine($"Canceling a previous queue process {pair.Key} for {pair.Value}");
                             queueProcess.Remove(pair.Key);
                             break;
                         }
@@ -206,12 +206,12 @@ namespace Vina_DiscordAuth2.WebSocket
                     temp = null;
                 }
                 queueProcess.Add(processId, discordId);
-                Debug.WriteLine($"Starting a queue process {processId} for {discordId}");
+                //Debug.WriteLine($"Starting a queue process {processId} for {discordId}");
                 
                 SendServerInfo();
 
                 // Start this queue process
-                Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication queued [{queuedPlayers[discordId].Priority}/{queuedPlayers.Count}]");
+                //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication queued [{queuedPlayers[discordId].Priority}/{queuedPlayers.Count}]");
                 while (!canceled && queuedPlayers.ContainsKey(discordId))
                 {
                     // Check if this current process has been removed by a new process
@@ -240,9 +240,9 @@ namespace Vina_DiscordAuth2.WebSocket
                     queuedCompletedMessage.username = username;
                     queuedCompletedMessage.discordId = discordId;
                     queuedCompletedMessage.time = now;
-                    if (isOpen) Send(queuedCompletedMessage.ToJson());
+                    SafeSend(queuedCompletedMessage.ToJson());
 
-                    Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication completed!");
+                    //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {username} authentication completed!");
                 }
             }
 
@@ -261,11 +261,11 @@ namespace Vina_DiscordAuth2.WebSocket
             socketMessage.username = player.Name;
             socketMessage.discordId = discordId;
             socketMessage.time = now;
-            if (isOpen) Send(socketMessage.ToJson());
+            SafeSend(socketMessage.ToJson());
 
             SendServerInfo();
 
-            Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {player.Name} initialized successfully!");
+            //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {player.Name} initialized successfully!");
         }
 
         internal void OnPlayerDropped(Player player, string reason)
@@ -281,11 +281,11 @@ namespace Vina_DiscordAuth2.WebSocket
             socketMessage.discordId = discordId;
             socketMessage.reason = reason;
             socketMessage.time = now;
-            if (isOpen) Send(socketMessage.ToJson());
+            SafeSend(socketMessage.ToJson());
 
             SendServerInfo();
 
-            Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {player.Name} left server!");
+            //Debug.WriteLine($"{now.ToShortTimeString()} [AUTH] DiscordAuthSocket: {player.Name} left server!");
         }
 
         internal void DropPlayer(string discordId, string reason)
@@ -361,7 +361,19 @@ namespace Vina_DiscordAuth2.WebSocket
             socketMessage.queuedCount = queuedPlayers.Count;
             socketMessage.queuedList = queuedPlayers;
             socketMessage.time = DateTime.Now;
-            if (isOpen) Send(socketMessage.ToJson());
+            SafeSend(socketMessage.ToJson());
+        }
+
+        internal void SafeSend(string data)
+        {
+            try
+            {
+                Send(data);
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine($"Exception in SafeSend {exception.Message}\n{exception.StackTrace}");
+            }
         }
     }
 }
