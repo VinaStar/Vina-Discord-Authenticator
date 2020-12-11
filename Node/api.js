@@ -184,58 +184,56 @@ reloadlocale                 ${text(this.locale.commands_description_reload_loca
     {
         reason = (reason && reason != "") ? reason : text(this.locale.command_drop_default_reason);
 
-        var discordIdFound = this.DiscordGetUserById(discordIdOrDisplayName).size === 1;
-        var discordDisplayNameFound = this.DiscordGetUserByDisplayName(discordIdOrDisplayName).size === 1;
-        if (discordIdFound || discordDisplayNameFound)
-        {
-            var discordId = (!discordIdFound) ? this.DiscordGetIdByDisplayName(discordIdOrDisplayName) : discordIdOrDisplayName;
-            var displayName = this.DiscordGetDisplayNameById(discordId);
-            var rank = this.GetPlayerRank(discordId);
-
-            if (!this.GetPlayerIsOnline(discordId))
-            {
-                console.log(text(this.locale.command_drop_cannot_not_online, [displayName]));
-            }
-            else if (rank.admin)
-            {
-                console.log(text(this.locale.command_drop_cannot_admin_rank, [displayName]));
-            }
-            else if (rank.important && !force)
-            {
-                console.log(text(this.locale.command_drop_cannot_important_rank, [displayName]));
-            }
-            else
-            {
-                console.log(text(this.locale.command_drop_success, { discordname: displayName, reason: reason }));
-                this.DoRequestPlayerDrop(discordId, reason);
-            }
-        }
-        else console.log(text(this.locale.command_drop_cannot_not_found, [discordIdOrDisplayName]));
+        this.DiscordGetUserById(discordId)
+        .then(user => {
+            return this.GetPlayerRank(rank => {
+                var isOnline = this.GetPlayerIsOnline(discordId);
+                if (!isOnline)
+                {
+                    console.log(text(this.locale.command_drop_cannot_not_online, [user.displayName]));
+                }
+                else if (rank.admin)
+                {
+                    console.log(text(this.locale.command_drop_cannot_admin_rank, [user.displayName]));
+                }
+                else if (rank.important && !force)
+                {
+                    console.log(text(this.locale.command_drop_cannot_important_rank, [user.displayName]));
+                }
+                else
+                {
+                    console.log(text(this.locale.command_drop_success, { discordname: user.displayName, reason: reason }));
+                    this.DoRequestPlayerDrop(discordId, reason);
+                }
+            });
+        })
+        .catch(() => {
+            console.log(text(this.locale.command_drop_cannot_not_found, [discordId]));
+        });
     }
 
-    CommandForceDrop(discordIdOrDisplayName, reason)
+    CommandForceDrop(discordId, reason)
     {
-        this.CommandDropId(discordIdOrDisplayName, reason, true);
+        this.CommandDropId(discordId, reason, true);
     }
 
-    CommandPlayer(discordIdOrDisplayName)
+    CommandPlayer(discordId)
     {
-        var discordIdFound = this.DiscordGetUserById(discordIdOrDisplayName).size === 1;
-        var discordDisplayNameFound = this.DiscordGetUserByDisplayName(discordIdOrDisplayName).size === 1;
-        if (discordIdFound || discordDisplayNameFound)
-        {
-            var discordId = (!discordIdFound) ? this.DiscordGetIdByDisplayName(discordIdOrDisplayName) : discordIdOrDisplayName;
-            var displayName = this.DiscordGetDisplayNameById(discordId);
-            var rank = this.GetPlayerRank(discordId);
-            var isOnline = this.GetPlayerIsOnline(discordId);
-            console.log("---------------------------------------");
-            console.log(`Discord ID:   '${discordId}'`);
-            console.log(`Display Name: '${displayName}'`);
-            console.log(`Rank:         '${rank.name}'`, (rank.admin) ? "[Admin]" : (rank.important) ? "[Important]" : "");
-            console.log(`Online:       '${isOnline}'`);
-            console.log("---------------------------------------");
-        }
-        else console.log(text(this.locale.command_player_not_found, [discordIdOrDisplayName]));
+        this.DiscordGetUserById(discordId)
+        .then(user => {
+            return this.GetPlayerRank(rank => {
+                var isOnline = this.GetPlayerIsOnline(discordId);
+                console.log("---------------------------------------");
+                console.log(`Discord ID:   '${discordId}'`);
+                console.log(`Display Name: '${user.displayName}'`);
+                console.log(`Rank:         '${rank.name}'`, (rank.admin) ? "[Admin]" : (rank.important) ? "[Important]" : "");
+                console.log(`Online:       '${isOnline}'`);
+                console.log("---------------------------------------");
+            });
+        })
+        .catch(() => {
+            console.log(text(this.locale.command_player_not_found, [discordId]));
+        });
     }
 
     // Discord Methods
